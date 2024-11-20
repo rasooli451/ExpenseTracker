@@ -132,4 +132,4 @@ dist
 
 
 #creds
-./src/credentials.txt
+*.txt
