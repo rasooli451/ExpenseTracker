@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -43,7 +44,7 @@ public class addrecord extends JFrame implements ActionListener{
     Connection con;
     public addrecord(){
         this.setTitle("Add new Record");
-        this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         this.setSize(600, 600);
         this.setResizable(false);
         Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
@@ -107,9 +108,19 @@ public class addrecord extends JFrame implements ActionListener{
                     int previousbalance = Integer.parseInt(rs.getString("Finalbalance"));
                     int balance = Integer.parseInt(newearned.getText()) - Integer.parseInt(amountspent.getText());
                     int finalbalance = previousbalance + balance;
-                    String command = "INSERT INTO records(earned, srcearn, dateEarned, spent, srcspent, datespent, balance, previousbalance, Finalbalance) VALUES(" + Integer.parseInt(newearned.getText())+ ", '" + srcOfEarning.getText() + "', '" + dateOfEarning.getText() + "', " + Integer.parseInt(amountspent.getText()) + ", '" +reasonForUse.getText() + "', '"+ dateOfspent.getText() + "', "+ balance + ", " + previousbalance + "," + finalbalance +")";
-                    smt.execute(command);
                     smt.close();
+                    PreparedStatement stmnt = con.prepareStatement("INSERT INTO records(earned, srcearn, dateEarned, spent, srcspent, datespent, balance, previousbalance, Finalbalance) VALUES(?,?,?,?,?,?,?,?,?)");
+                    stmnt.setInt(1, Integer.parseInt(newearned.getText()));
+                    stmnt.setString(2, srcOfEarning.getText());
+                    stmnt.setString(3, dateOfEarning.getText());
+                    stmnt.setInt(4, Integer.parseInt(amountspent.getText()));
+                    stmnt.setString(5, reasonForUse.getText());
+                    stmnt.setString(6, dateOfspent.getText());
+                    stmnt.setInt(7, balance);
+                    stmnt.setInt(8, previousbalance);
+                    stmnt.setInt(9, finalbalance);
+                    stmnt.execute();
+                    stmnt.close();
                     JOptionPane.showMessageDialog(null, "Records was Inserted successfully");
                     this.reset();
                 } catch (SQLException e1) {
@@ -137,7 +148,7 @@ public class addrecord extends JFrame implements ActionListener{
     private void ConnectToDatabase(){
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            String[] creds = this.getCreds();
+            String[] creds = helpingMethods.getCreds();
             con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ETS", creds[0], creds[1]);
         } catch (ClassNotFoundException e) {
             // TODO: handle exception
@@ -148,29 +159,6 @@ public class addrecord extends JFrame implements ActionListener{
         }
     }
 
-    private String[] getCreds(){
-        File file = new File("./ExpenseTracker/src/credentials.txt");
-        String[] result = new String[2];
-        String res = "";
-        try {
-            FileReader reader = new FileReader(file);
-            int data = reader.read();
-            
-            while(data != -1){
-                res += (char)data;
-                data = reader.read();
-            }
-            reader.close();
-        } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        result = res.split(",");
-        return result;
-    }
     private void reset(){
         newearned.setText("");
         srcOfEarning.setText("");
