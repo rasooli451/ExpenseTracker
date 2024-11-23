@@ -60,6 +60,9 @@ public class MainWindow extends JFrame implements ActionListener{
         if (source.equals(addrecord)){
             addrecord win = new addrecord();
         }
+        else if(source.equals(checkrecords)){
+            checkrecords cr = new checkrecords();
+        }
     }
 }
 
