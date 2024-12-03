@@ -16,7 +16,7 @@ import javax.swing.table.AbstractTableModel;
 import com.mysql.cj.protocol.Resultset;
 import javax.swing.table.DefaultTableCellRenderer;
 
-public class table extends JTable implements TableModelListener{
+public class table extends JTable{
     
     public table(){
         super(new Mymodel());
@@ -36,11 +36,6 @@ public class table extends JTable implements TableModelListener{
         for (int i = 0; i < widths.length; i++){
             this.getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
         }
-    }
-
-    @Override
-    public void tableChanged(TableModelEvent e){
-        
     }
 }
 
