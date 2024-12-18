@@ -1,9 +1,5 @@
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -12,7 +8,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -47,6 +42,7 @@ public class addrecord extends JFrame implements ActionListener{
         this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         this.setSize(600, 600);
         this.setResizable(false);
+
         Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
         int x = (int) ((dimension.getWidth() - this.getWidth()) / 2);
         int y = (int) ((dimension.getHeight() - this.getHeight()) / 2);
@@ -63,8 +59,6 @@ public class addrecord extends JFrame implements ActionListener{
         Reset.addActionListener(this);
         add.addActionListener(this);
 
-        helpingMethods.setButton(back, "Back", Color.black, new Color(224, 123, 57), 20, 30, 80, 40, 20, main);
-
         helpingMethods.setLabel(title, "Add New Record", Color.black, 160, 0, 300, 70, 35, main);
         helpingMethods.setLabel(forearned, "Amount Earned: ", Color.black, 110, 90, 200, 50, 20, main);
         helpingMethods.setLabel(srcearnedlabel, "Source Of Earning: ", Color.black, 110, 140, 200, 50, 20, main);
@@ -80,6 +74,7 @@ public class addrecord extends JFrame implements ActionListener{
         helpingMethods.settextfield(reasonForUse, 300, 300, 150, 30, main);
         helpingMethods.settextfield(dateOfspent, 300, 350, 150, 30, main);
         
+        helpingMethods.setButton(back, "Back", Color.black, new Color(224, 123, 57), 20, 30, 80, 40, 20, main);
         helpingMethods.setButton(Reset, "Reset", Color.black, new Color(224, 123, 57), 120, 460, 100, 40, 20, main);
         helpingMethods.setButton(add, "Add", Color.black, new Color(224, 123, 57), 360, 460, 100, 40, 20, main);
         this.setVisible(true);
@@ -106,14 +101,16 @@ public class addrecord extends JFrame implements ActionListener{
                     rs = smt.executeQuery("SELECT Finalbalance FROM records ORDER BY number DESC LIMIT 1");
                     rs.next();
                     int previousbalance = Integer.parseInt(rs.getString("Finalbalance"));
-                    int balance = Integer.parseInt(newearned.getText()) - Integer.parseInt(amountspent.getText());
+                    int Earn = Integer.parseInt(newearned.getText()) < 0 ? 0:Integer.parseInt(newearned.getText());
+                    int Spent = Integer.parseInt(amountspent.getText()) < 0 ? 0:Integer.parseInt(amountspent.getText());
+                    int balance = Earn - Spent;
                     int finalbalance = previousbalance + balance;
                     smt.close();
                     PreparedStatement stmnt = con.prepareStatement("INSERT INTO records(earned, srcearn, dateEarned, spent, srcspent, datespent, balance, previousbalance, Finalbalance) VALUES(?,?,?,?,?,?,?,?,?)");
-                    stmnt.setInt(1, Integer.parseInt(newearned.getText()));
+                    stmnt.setInt(1, Earn);
                     stmnt.setString(2, srcOfEarning.getText());
                     stmnt.setString(3, dateOfEarning.getText());
-                    stmnt.setInt(4, Integer.parseInt(amountspent.getText()));
+                    stmnt.setInt(4, Spent);
                     stmnt.setString(5, reasonForUse.getText());
                     stmnt.setString(6, dateOfspent.getText());
                     stmnt.setInt(7, balance);
@@ -121,6 +118,9 @@ public class addrecord extends JFrame implements ActionListener{
                     stmnt.setInt(9, finalbalance);
                     stmnt.execute();
                     stmnt.close();
+                    if (checkLength()){
+                        removeFirstRow();
+                    }
                     JOptionPane.showMessageDialog(null, "Records was Inserted successfully");
                     this.reset();
                 } catch (SQLException e1) {
@@ -129,17 +129,21 @@ public class addrecord extends JFrame implements ActionListener{
                 }
             }
             else{
-                JOptionPane.showMessageDialog(null, "Check Inputs, Something is Wrong!");
+                JOptionPane.showMessageDialog(null, "Check Inputs, Something is Wrong! No Field must be empty and Non-number Fields should not have more than 20 characters.");
             }
         }
     }
     
     private boolean checkinputs(){
-        if (newearned.getText().length() == 0 || srcOfEarning.getText().length() == 0 || dateOfEarning.getText().length() == 0 || amountspent.getText().length() == 0 || reasonForUse.getText().length() == 0 || amountspent.getText().length() == 0){
+        if (newearned.getText().length() == 0 || srcOfEarning.getText().length() == 0 || dateOfEarning.getText().length() == 0 || amountspent.getText().length() == 0 || reasonForUse.getText().length() == 0 || amountspent.getText().length() == 0 || dateOfspent.getText().length() == 0){
                     return false;
         }
 
         if (!helpingMethods.isnumerical(newearned.getText()) || !helpingMethods.isnumerical(amountspent.getText())){
+            return false;
+        }
+
+        if (srcOfEarning.getText().length() > 20 || dateOfEarning.getText().length() > 20 || reasonForUse.getText().length() > 20 || dateOfspent.getText().length() > 20){
             return false;
         }
         return true;
@@ -166,6 +170,46 @@ public class addrecord extends JFrame implements ActionListener{
         amountspent.setText("");
         reasonForUse.setText("");
         dateOfspent.setText("");
+    }
+
+    private boolean checkLength(){
+        Connection con = helpingMethods.establishConnection();
+        try {
+            Statement smt = con.createStatement();
+            ResultSet rs = smt.executeQuery("SELECT COUNT(*) FROM records");
+            rs.next();
+            int length = rs.getInt("COUNT(*)");
+            System.out.println(length);
+            smt.close();
+            if (length > 720){
+                return true;
+            }
+            else{
+                return false;
+            }
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    private void removeFirstRow(){
+        Connection con = helpingMethods.establishConnection();
+        try {
+            Statement smt = con.createStatement();
+            ResultSet rs = smt.executeQuery("SELECT number FROM records LIMIT 1");
+            rs.next();
+            int firstrownum = rs.getInt("number");
+            smt.close();
+            PreparedStatement stmnt = con.prepareStatement("DELETE FROM records WHERE number=?");
+            stmnt.setInt(1, firstrownum);
+            stmnt.execute();
+            stmnt.close();
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 }
 
