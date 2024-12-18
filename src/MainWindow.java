@@ -16,11 +16,12 @@ import java.awt.event.ActionListener;
 
 
 public class MainWindow extends JFrame implements ActionListener{
-    JPanel MainPanel;
-    Color background;
-    JLabel title;
-    JButton addrecord;
-    JButton checkrecords;
+    JPanel MainPanel =  new JPanel();
+    Color background = new Color(220, 228, 201); 
+    JLabel title = new JLabel();
+    JButton addrecord = new JButton();
+    JButton checkrecords = new JButton();
+    ImageIcon icon = new ImageIcon("./ExpenseTracker/src/icon.png");
     public MainWindow(){
         this.setTitle("Expenses");
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -28,28 +29,24 @@ public class MainWindow extends JFrame implements ActionListener{
         this.setResizable(false);
         this.setLayout(null);
         this.setLocationRelativeTo(null);
+        this.setIconImage(icon.getImage());
         
-        MainPanel = new JPanel();
-        background = new Color(220, 228, 201);
         MainPanel.setSize(600,600);
         MainPanel.setOpaque(true);
         MainPanel.setBackground(background);
         MainPanel.setLayout(null);
         this.add(MainPanel);
         
-        title = new JLabel();
         helpingMethods.setLabel(title, "Expense Tracker", Color.black, 160, 0, 300, 90, 35, MainPanel);
-        
-        addrecord = new JButton();
-        addrecord.addActionListener(this);
         helpingMethods.setButton(addrecord, "Add New Record", Color.black, new Color(224, 123, 57), 160, 150, 250, 60, 25, MainPanel);
-
-        checkrecords = new JButton();
-        checkrecords.addActionListener(this);
         helpingMethods.setButton(checkrecords, "Check Records", Color.black, new Color(224, 123, 57), 160, 300, 250, 60, 25, MainPanel);
+        
+        checkrecords.addActionListener(this);
+        addrecord.addActionListener(this);
         
         this.revalidate();
         this.setVisible(true);
+        
     }
 
 
