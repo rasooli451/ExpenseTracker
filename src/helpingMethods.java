@@ -1,8 +1,8 @@
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-
 import java.awt.Font;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -14,7 +14,6 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.awt.Color;
-import javax.swing.JFrame;
 
 
 
@@ -75,8 +74,10 @@ public class helpingMethods {
         } catch (ClassNotFoundException e) {
             // TODO: handle exception
             Logger.getLogger(addrecord.class.getName()).log(Level.SEVERE, null, e);
+            JOptionPane.showMessageDialog(null, "Driver Class wasn't found : " + e.getMessage());
         } catch (SQLException e) {
             // TODO Auto-generated catch block
+            JOptionPane.showMessageDialog(null,"Couldn't find the database : " + e.getMessage());
             e.printStackTrace();
         }
         return con;
@@ -99,9 +100,11 @@ public class helpingMethods {
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null,"File was not found" + e.getMessage());
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, e.getMessage());
         }
         result = res.split(",");
         return result;
