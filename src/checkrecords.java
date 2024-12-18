@@ -1,23 +1,25 @@
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableCellRenderer;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.awt.Adjustable;
 
 public class checkrecords extends JFrame implements ActionListener, TableModelListener{
 
@@ -25,7 +27,7 @@ public class checkrecords extends JFrame implements ActionListener, TableModelLi
     JButton ApplyEdit = new  JButton();
     JLabel title = new JLabel();
     JPanel main = new JPanel();
-    table table;
+    table table = new table();
     boolean useredit = true;
     HashMap<Integer,List<List<Integer>>> changes = new HashMap<Integer, List<List<Integer>>>();
     //idea: in the tablechanged method, just store changes in an array, come up with an efficient alghoritm that will make the program fast, either use array, or dictionary or map, and then whenever user clicks apply, then you update database, and when updating always start updating changes from lower rowes and then do the higher rows. 
@@ -34,28 +36,33 @@ public class checkrecords extends JFrame implements ActionListener, TableModelLi
         this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         this.setSize(1150, 1000);
         this.setResizable(false);
+        
         Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
         int x = (int) ((dimension.getWidth() - this.getWidth()) / 2);
         int y = (int) ((dimension.getHeight() - this.getHeight()) / 2);
         this.setLocation(x, y);
+        
         main.setSize(1150, 1000);
         main.setOpaque(true);
         main.setBackground(new Color(220, 228, 201));
         main.setLayout(null);
-        this.add(main);
         main.setLayout(null);
+        this.add(main);
+        
         back.addActionListener(this);
         ApplyEdit.addActionListener(this);
+        ApplyEdit.setEnabled(false);
+        
         helpingMethods.setLabel(title, "Records", Color.black, 490, 20, 300, 70, 45, main);
         helpingMethods.setButton(back, "Back", Color.black, new Color(224, 123, 57), 30, 30, 80, 40, 20, main);
         helpingMethods.setButton(ApplyEdit, "Apply Edit", Color.black, new Color(224, 123, 57), 950, 30, 140, 40, 20, main);
-        ApplyEdit.setEnabled(false);
-        table = new table();
+        
         JScrollPane jsp = new JScrollPane(table);
         table.getModel().addTableModelListener(this);
         table.getTableHeader().setReorderingAllowed(false);
         jsp.setBounds(50, 100, 1050, 800);
         jsp.setBackground(new Color(220, 228, 201));
+        scrollToBottom(jsp);
         main.add(jsp);
 
         this.setVisible(true);
@@ -106,16 +113,6 @@ public class checkrecords extends JFrame implements ActionListener, TableModelLi
             changes.put(num, value);
     }
 }
-
-    public int findindex(int index, List<List<Integer>> array){
-        for(int i = 0; i < array.size(); i++){
-            List<Integer> temp = array.get(i);
-            if (temp.get(1) >= index){
-                return i;
-            }
-        }
-        return -1;
-    }
 
     private void UpdateDBandTable(){
     Object[] keys = changes.keySet().toArray();
@@ -215,7 +212,6 @@ public class checkrecords extends JFrame implements ActionListener, TableModelLi
                 vals[i] = table.getValueAt(temp.get(1), temp.get(0));
             }
             updatestr += " WHERE number=" + row;
-            System.out.println(updatestr);
             PreparedStatement stmnt = con.prepareStatement(updatestr);
             for (int i = 0; i < vals.length; i++){
                 if (vals[i] instanceof String){
@@ -229,8 +225,23 @@ public class checkrecords extends JFrame implements ActionListener, TableModelLi
             stmnt.close();
         } catch (Exception e) {
             // TODO: handle exception
+            JOptionPane.showMessageDialog(null, "There was a problem while transfering changes:" + e.getMessage());
         }
     
+    }
+
+
+    private void scrollToBottom(JScrollPane scrollPane) {
+        JScrollBar verticalBar = scrollPane.getVerticalScrollBar();
+        AdjustmentListener downScroller = new AdjustmentListener() {
+            @Override
+            public void adjustmentValueChanged(AdjustmentEvent e) {
+                Adjustable adjustable = e.getAdjustable();
+                adjustable.setValue(adjustable.getMaximum());
+                verticalBar.removeAdjustmentListener(this);
+            }
+        };
+        verticalBar.addAdjustmentListener(downScroller);
     }
 
     
