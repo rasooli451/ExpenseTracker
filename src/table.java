@@ -4,16 +4,9 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
-
 import javax.swing.JLabel;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
-
-import com.mysql.cj.protocol.Resultset;
 import javax.swing.table.DefaultTableCellRenderer;
 
 public class table extends JTable{
