@@ -7,6 +7,8 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.TableColumn;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -34,7 +36,7 @@ public class checkrecords extends JFrame implements ActionListener, TableModelLi
     public checkrecords(){
         this.setTitle("Records");
         this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        this.setSize(1150, 1000);
+        this.setSize(1200, 1000);
         this.setResizable(false);
         
         Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
@@ -59,6 +61,8 @@ public class checkrecords extends JFrame implements ActionListener, TableModelLi
         
         JScrollPane jsp = new JScrollPane(table);
         table.getModel().addTableModelListener(this);
+        table.removeColumn(table.getColumnModel().getColumn(11));
+        table.removeColumn(table.getColumnModel().getColumn(11));
         table.getTableHeader().setReorderingAllowed(false);
         jsp.setBounds(50, 100, 1050, 800);
         jsp.setBackground(new Color(220, 228, 201));
@@ -199,7 +203,7 @@ public class checkrecords extends JFrame implements ActionListener, TableModelLi
 
     private void transferchangetoDB(int row, List<List<Integer>> changesForRow){
         Connection con = helpingMethods.establishConnection();
-        String[] cols = {"number", "earned", "srcearn", "dateEarned", "Spent", "srcspent", "datespent", "balance", "previousbalance", "Finalbalance"};
+        String[] cols = {"number", "counts" , "earned", "srcearn", "dateEarned", "Spent", "srcspent", "datespent", "balance", "previousbalance", "Finalbalance", "fontcolor", "backgroundcolor"};
         Object[] vals = new Object[changesForRow.size()];
         try {
             String updatestr = "UPDATE records SET " + cols[changesForRow.get(0).get(0)] + "=?";
