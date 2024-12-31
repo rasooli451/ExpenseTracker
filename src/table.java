@@ -1,4 +1,5 @@
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -8,6 +9,8 @@ import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
 
 public class table extends JTable{
     
@@ -25,24 +28,39 @@ public class table extends JTable{
     }
 
     private void setcolumnsize(){
-        int[] widths = {35, 70, 150, 150, 70, 150, 150, 90, 90, 90};
+        int[] widths = {35, 42, 120, 120, 100, 120, 120, 120, 90, 90,90,90,90};
         for (int i = 0; i < widths.length; i++){
             this.getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
         }
+    }
+
+    @Override
+    public Component prepareRenderer(TableCellRenderer renderer, int row, int col){
+        Component c = super.prepareRenderer(renderer, row, col);
+        Color bg = Color.decode((String)this.getModel().getValueAt(row, 12));
+        c.setBackground(bg);
+        c.setForeground(this.getModel().getValueAt(row, 11) == "black" ? Color.black:Color.white);
+
+        return c;
     }
 }
 
 
 
 class Mymodel extends AbstractTableModel{
-    private String[] headers = {"Num", "Earnings", "Source Of Earnings", "Date Of Earnings", "Spendings", "Source Of Spendings", "Date Of Spendings", "Balance", "Prev Balance", "Final Balance"};
+    private String[] headers = {"Num", "Count", "Earnings", "Source Of Earnings", "Date Of Earnings", "Spendings", "Source Of Spendings", "Date Of Spendings", "Balance", "Prev Balance", "Final Balance", "FontColor", "BackgroundColor"};
     private Object[][] data = getData();
+
     public int getColumnCount(){
         return headers.length;
     }
 
     public int getRowCount(){
         return data.length;
+    }
+
+    public void setRowColor(int row, Color c){
+        fireTableRowsUpdated(row, row);
     }
 
     public String getColumnName(int col){
@@ -57,7 +75,7 @@ class Mymodel extends AbstractTableModel{
         return getValueAt(0, c).getClass();
     }
     public boolean isCellEditable(int row, int col){
-        if (col == 0 || col > 6){
+        if (col < 2 || col > 7){
             return false;
         }
         return true;
@@ -81,6 +99,7 @@ class Mymodel extends AbstractTableModel{
             int index = 0;
             while (rs.next()){
                 int number = rs.getInt("number");
+                int count = rs.getInt("counts");
                 int earned = rs.getInt("earned");
                 String srcearn = rs.getString("srcearn");
                 String dateearn = rs.getString("dateEarned");
@@ -90,7 +109,9 @@ class Mymodel extends AbstractTableModel{
                 int balance = rs.getInt("balance");
                 int previousbalance = rs.getInt("previousbalance");
                 int finalbalance = rs.getInt("Finalbalance");
-                res[index] = new Object[]{number,earned, srcearn, dateearn, spent, srcspent, datespent, balance, previousbalance, finalbalance};
+                String fontcolor = rs.getString("fontcolor");
+                String background = rs.getString("backgroundcolor");
+                res[index] = new Object[]{number, count, earned, srcearn, dateearn, spent, srcspent, datespent, balance, previousbalance, finalbalance, fontcolor, background};
                 index++;
             }
         } catch (SQLException e1) {
