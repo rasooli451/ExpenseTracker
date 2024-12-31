@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JButton;
@@ -21,7 +22,8 @@ import java.awt.Color;
 public class addrecord extends JFrame implements ActionListener{
     JButton back = new JButton();
     JButton Reset = new JButton();
-    JButton add = new JButton();
+    JButton addToNewmonth = new JButton();
+    JButton addToPreviousmont = new JButton();
     JTextField newearned = new JTextField();
     JTextField srcOfEarning = new JTextField();
     JTextField dateOfEarning = new JTextField();
@@ -57,7 +59,8 @@ public class addrecord extends JFrame implements ActionListener{
 
         back.addActionListener(this);
         Reset.addActionListener(this);
-        add.addActionListener(this);
+        addToNewmonth.addActionListener(this);
+        addToPreviousmont.addActionListener(this);
 
         helpingMethods.setLabel(title, "Add New Record", Color.black, 160, 0, 300, 70, 35, main);
         helpingMethods.setLabel(forearned, "Amount Earned: ", Color.black, 110, 90, 200, 50, 20, main);
@@ -75,8 +78,9 @@ public class addrecord extends JFrame implements ActionListener{
         helpingMethods.settextfield(dateOfspent, 300, 350, 150, 30, main);
         
         helpingMethods.setButton(back, "Back", Color.black, new Color(224, 123, 57), 20, 30, 80, 40, 20, main);
-        helpingMethods.setButton(Reset, "Reset", Color.black, new Color(224, 123, 57), 120, 460, 100, 40, 20, main);
-        helpingMethods.setButton(add, "Add", Color.black, new Color(224, 123, 57), 360, 460, 100, 40, 20, main);
+        helpingMethods.setButton(Reset, "Reset", Color.black, new Color(224, 123, 57), 90, 460, 100, 40, 20, main);
+        helpingMethods.setButton(addToNewmonth, "New Add", Color.black, new Color(224, 123, 57), 220, 460, 130, 40, 20, main);
+        helpingMethods.setButton(addToPreviousmont, "Previous Add", Color.black, new Color(224, 123, 57), 370, 460, 150, 40, 20, main);
         this.setVisible(true);
     }
 
@@ -94,38 +98,10 @@ public class addrecord extends JFrame implements ActionListener{
         }
         else{
             if (checkinputs()){
-                this.ConnectToDatabase();
-                try {
-                    Statement smt = con.createStatement();
-                    ResultSet rs;
-                    rs = smt.executeQuery("SELECT Finalbalance FROM records ORDER BY number DESC LIMIT 1");
-                    rs.next();
-                    int previousbalance = Integer.parseInt(rs.getString("Finalbalance"));
-                    int Earn = Integer.parseInt(newearned.getText()) < 0 ? 0:Integer.parseInt(newearned.getText());
-                    int Spent = Integer.parseInt(amountspent.getText()) < 0 ? 0:Integer.parseInt(amountspent.getText());
-                    int balance = Earn - Spent;
-                    int finalbalance = previousbalance + balance;
-                    smt.close();
-                    PreparedStatement stmnt = con.prepareStatement("INSERT INTO records(earned, srcearn, dateEarned, spent, srcspent, datespent, balance, previousbalance, Finalbalance) VALUES(?,?,?,?,?,?,?,?,?)");
-                    stmnt.setInt(1, Earn);
-                    stmnt.setString(2, srcOfEarning.getText());
-                    stmnt.setString(3, dateOfEarning.getText());
-                    stmnt.setInt(4, Spent);
-                    stmnt.setString(5, reasonForUse.getText());
-                    stmnt.setString(6, dateOfspent.getText());
-                    stmnt.setInt(7, balance);
-                    stmnt.setInt(8, previousbalance);
-                    stmnt.setInt(9, finalbalance);
-                    stmnt.execute();
-                    stmnt.close();
-                    if (checkLength()){
-                        removeFirstRow();
-                    }
-                    JOptionPane.showMessageDialog(null, "Records was Inserted successfully");
-                    this.reset();
-                } catch (SQLException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
+                if (source.equals(addToNewmonth))
+                     this.addToDatabase(true);
+                else if (source.equals(addToPreviousmont)){
+                     this.addToDatabase(false);
                 }
             }
             else{
@@ -172,6 +148,59 @@ public class addrecord extends JFrame implements ActionListener{
         dateOfspent.setText("");
     }
 
+    private void addToDatabase(boolean newmonth){
+        this.ConnectToDatabase();
+        try {
+            Statement smt = con.createStatement();
+            ResultSet rs = null;
+            int count = 1;
+            String fontcolor = "";
+            String background = "";
+            if (!newmonth){
+                rs = smt.executeQuery("SELECT Finalbalance, counts, fontcolor, backgroundcolor FROM records ORDER BY number DESC LIMIT 1");
+                rs.next();
+                count = rs.getInt("counts") + 1;
+                fontcolor = rs.getString("fontcolor");
+                background = rs.getString("backgroundcolor");
+            }
+            else{
+                rs = smt.executeQuery("SELECT Finalbalance FROM records ORDER BY number DESC LIMIT 1");
+                rs.next();
+                background = this.getrandombackground();
+                fontcolor = this.getfontcolor(Color.decode(background));
+            }
+            int previousbalance = rs.getInt("Finalbalance");
+            int Earn = Integer.parseInt(newearned.getText()) < 0 ? 0:Integer.parseInt(newearned.getText());
+            int Spent = Integer.parseInt(amountspent.getText()) < 0 ? 0:Integer.parseInt(amountspent.getText());
+            int balance = Earn - Spent;
+            int finalbalance = previousbalance + balance;
+            smt.close();
+            PreparedStatement stmnt = con.prepareStatement("INSERT INTO records(earned, counts, fontcolor, backgroundcolor, srcearn, dateEarned, spent, srcspent, datespent, balance, previousbalance, Finalbalance) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)");
+            stmnt.setInt(1, Earn);
+            stmnt.setInt(2, count);
+            stmnt.setString(3, fontcolor);
+            stmnt.setString(4, background);
+            stmnt.setString(5, srcOfEarning.getText());
+            stmnt.setString(6, dateOfEarning.getText());
+            stmnt.setInt(7, Spent);
+            stmnt.setString(8, reasonForUse.getText());
+            stmnt.setString(9, dateOfspent.getText());
+            stmnt.setInt(10, balance);
+            stmnt.setInt(11, previousbalance);
+            stmnt.setInt(12, finalbalance);
+            stmnt.execute();
+            stmnt.close();
+            if (checkLength()){
+                removeFirstRow();
+            }
+            JOptionPane.showMessageDialog(null, "Records was Inserted successfully!");
+            this.reset();
+        } catch (SQLException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+    }
+
     private boolean checkLength(){
         Connection con = helpingMethods.establishConnection();
         try {
@@ -181,7 +210,7 @@ public class addrecord extends JFrame implements ActionListener{
             int length = rs.getInt("COUNT(*)");
             System.out.println(length);
             smt.close();
-            if (length > 720){
+            if (length > 1000){
                 return true;
             }
             else{
@@ -192,6 +221,23 @@ public class addrecord extends JFrame implements ActionListener{
             e.printStackTrace();
         }
         return false;
+    }
+
+
+    private String getrandombackground(){
+        String bg = "#";
+        String alphabet = "0123456789abcdef";
+        Random rand = new Random();
+        for (int i = 1; i < 7; i++){
+            bg += alphabet.charAt(rand.nextInt(16));
+        }
+
+        return bg;
+    }
+
+    private String getfontcolor(Color color){
+        double a = 1 - (0.299 * color.getRed() + 0.587 * color.getGreen() + 0.114 * color.getBlue()) / 255;
+        return a < 0.5 ? "black" : "white";
     }
 
     private void removeFirstRow(){
