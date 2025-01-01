@@ -208,9 +208,8 @@ public class addrecord extends JFrame implements ActionListener{
             ResultSet rs = smt.executeQuery("SELECT COUNT(*) FROM records");
             rs.next();
             int length = rs.getInt("COUNT(*)");
-            System.out.println(length);
             smt.close();
-            if (length > 1000){
+            if (length > 1500){
                 return true;
             }
             else{
