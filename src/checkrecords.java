@@ -7,7 +7,6 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.TableColumn;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -142,7 +141,7 @@ public class checkrecords extends JFrame implements ActionListener, TableModelLi
              List<Integer> temp = change.get(j);
               row = temp.get(1);
               col = temp.get(0);
-             if (col == 1 || col == 4){
+             if (col == 2 || col == 5){
                 int finalbalance = Updaterow(row, col);
                 if (!noNeedForUpdate){
                     UpdateRestOfTable(row, next, finalbalance);
@@ -152,10 +151,10 @@ public class checkrecords extends JFrame implements ActionListener, TableModelLi
         }
         //apply the change to DB here
         List<Integer> currbalance = new ArrayList<>();
-        currbalance.add(7);
+        currbalance.add(8);
         currbalance.add(row);
         List<Integer> Final = new ArrayList<>();
-        Final.add(9);
+        Final.add(10);
         Final.add(row);
         change.add(currbalance);
         change.add(Final);
@@ -168,16 +167,16 @@ public class checkrecords extends JFrame implements ActionListener, TableModelLi
     private void UpdateRestOfTable(int row,int next, int finalbalance){
         //until you get to next, update previous balance and final balance and apply the change to database for each row.
         for (int i = row + 1; i < next; i++){
-            table.setValueAt(finalbalance, i, 8);
-            int currbalance = (Integer)table.getValueAt(i, 7);
-            finalbalance = finalbalance + currbalance;
             table.setValueAt(finalbalance, i, 9);
+            int currbalance = (Integer)table.getValueAt(i, 8);
+            finalbalance = finalbalance + currbalance;
+            table.setValueAt(finalbalance, i, 10);
             List<List<Integer>> changesForThisRow = new ArrayList<>();
             List<Integer> change1 = new ArrayList<>();
-            change1.add(8);
+            change1.add(9);
             change1.add(i);
             List<Integer> change2 = new ArrayList<>();
-            change2.add(9);
+            change2.add(10);
             change2.add(i);
             changesForThisRow.add(change1);
             changesForThisRow.add(change2);
@@ -188,16 +187,16 @@ public class checkrecords extends JFrame implements ActionListener, TableModelLi
 
     private int Updaterow(int row, int col){
         int newbalance = 0;
-        if (col == 1){
-            newbalance = (Integer)table.getValueAt(row, col) - (Integer)table.getValueAt(row, 4);
+        if (col == 2){
+            newbalance = (Integer)table.getValueAt(row, col) - (Integer)table.getValueAt(row, 5);
         }
         else{
-            newbalance = (Integer)table.getValueAt(row, 1) - (Integer)table.getValueAt(row, col);
+            newbalance = (Integer)table.getValueAt(row, 2) - (Integer)table.getValueAt(row, col);
         }
-        table.setValueAt(newbalance, row, 7);
-        int previousbalance = (Integer)table.getValueAt(row, 8);
+        table.setValueAt(newbalance, row, 8);
+        int previousbalance = (Integer)table.getValueAt(row, 9);
         int finalbalance = newbalance + previousbalance;
-        table.setValueAt(finalbalance, row, 9);
+        table.setValueAt(finalbalance, row, 10);
         return finalbalance;
     }
 
