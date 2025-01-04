@@ -17,6 +17,7 @@ import java.awt.event.ActionListener;
 public class MainWindow extends JFrame implements ActionListener{
     JPanel MainPanel =  new JPanel();
     Color background = new Color(220, 228, 201); 
+    Color buttonColor = new Color(224, 123, 57);
     JLabel title = new JLabel();
     JButton addrecord = new JButton();
     JButton checkrecords = new JButton();
@@ -37,8 +38,8 @@ public class MainWindow extends JFrame implements ActionListener{
         this.add(MainPanel);
         
         helpingMethods.setLabel(title, "Expense Tracker", Color.black, 160, 0, 300, 90, 35, MainPanel);
-        helpingMethods.setButton(addrecord, "Add New Record", Color.black, new Color(224, 123, 57), 160, 150, 250, 60, 25, MainPanel);
-        helpingMethods.setButton(checkrecords, "Check Records", Color.black, new Color(224, 123, 57), 160, 300, 250, 60, 25, MainPanel);
+        helpingMethods.setButton(addrecord, "Add New Record", Color.black, buttonColor, 160, 150, 250, 60, 25, MainPanel);
+        helpingMethods.setButton(checkrecords, "Check Records", Color.black, buttonColor, 160, 300, 250, 60, 25, MainPanel);
         
         checkrecords.addActionListener(this);
         addrecord.addActionListener(this);
