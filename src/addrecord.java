@@ -38,6 +38,7 @@ public class addrecord extends JFrame implements ActionListener{
     JLabel reasonforuselabel = new JLabel();
     JLabel datespentlabel = new JLabel();
     JLabel title = new JLabel();
+    Color buttonColor = new Color(224, 123, 57);
     Connection con;
     public addrecord(){
         this.setTitle("Add new Record");
@@ -77,10 +78,10 @@ public class addrecord extends JFrame implements ActionListener{
         helpingMethods.settextfield(reasonForUse, 300, 300, 150, 30, main);
         helpingMethods.settextfield(dateOfspent, 300, 350, 150, 30, main);
         
-        helpingMethods.setButton(back, "Back", Color.black, new Color(224, 123, 57), 20, 30, 80, 40, 20, main);
-        helpingMethods.setButton(Reset, "Reset", Color.black, new Color(224, 123, 57), 90, 460, 100, 40, 20, main);
-        helpingMethods.setButton(addToNewmonth, "New Add", Color.black, new Color(224, 123, 57), 220, 460, 130, 40, 20, main);
-        helpingMethods.setButton(addToPreviousmont, "Previous Add", Color.black, new Color(224, 123, 57), 370, 460, 150, 40, 20, main);
+        helpingMethods.setButton(back, "Back", Color.black, buttonColor, 20, 30, 80, 40, 20, main);
+        helpingMethods.setButton(Reset, "Reset", Color.black, buttonColor, 90, 460, 100, 40, 20, main);
+        helpingMethods.setButton(addToNewmonth, "New Add", Color.black, buttonColor, 220, 460, 130, 40, 20, main);
+        helpingMethods.setButton(addToPreviousmont, "Previous Add", Color.black, buttonColor, 370, 460, 150, 40, 20, main);
         this.setVisible(true);
     }
 
@@ -230,7 +231,7 @@ public class addrecord extends JFrame implements ActionListener{
         for (int i = 1; i < 7; i++){
             bg += alphabet.charAt(rand.nextInt(16));
         }
-        
+
         return bg;
     }
 
